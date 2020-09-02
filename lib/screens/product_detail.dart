@@ -187,6 +187,7 @@ class _ProductDetailState extends State<ProductDetail> {
                 icon: Icon(
                   Icons.favorite_border,
                   color: Colors.redAccent,
+                  size:25,
                 ),
                 onPressed: () {}),
           ],
