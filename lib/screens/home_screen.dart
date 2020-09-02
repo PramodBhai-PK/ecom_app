@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecomapp/helpers/side_drawer_navigation.dart';
 import 'package:ecomapp/models/category.dart';
 import 'package:ecomapp/models/product.dart';
 import 'package:ecomapp/screens/cart_screen.dart';
@@ -10,6 +11,7 @@ import 'package:ecomapp/widgets/carousel_slider.dart';
 import 'package:ecomapp/widgets/home_hot_products.dart';
 import 'package:ecomapp/widgets/home_new_arrival_products.dart';
 import 'package:ecomapp/widgets/home_product_categories.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   SliderService _sliderService = SliderService();
   CategoryService _categoryService = CategoryService();
   ProductService _productService = ProductService();
@@ -33,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    getMessage();
+    _registerOnFirebase();
     _getAllSliders();
     _getAllCategories();
     _getAllHotProducts();
@@ -45,32 +49,33 @@ class _HomeScreenState extends State<HomeScreen> {
     print(sliders.body);
     var result = json.decode(sliders.body);
 
-    result['data'].forEach((data){
+    result['data'].forEach((data) {
       setState(() {
-      items.add(
-        NetworkImage(data['sliderImage']),
+        items.add(
+          NetworkImage(data['sliderImage']),
         );
 //       items.add(
 //         FadeInImage.assetNetwork(
 //         placeholder: 'images/loader.gif',
 //         image: data['sliderImage'],
 // ),);
-    });
+      });
     });
     //print(result);
-    
   }
+
   _getCartItems() async {
     _cartItems = List<Product>();
     var cartItems = await _cartService.getCartItems();
-    cartItems.forEach((data){
+    cartItems.forEach((data) {
       var product = Product();
       product.id = data['productId'];
       product.name = data['productName'];
-      product.photo= data['productPhoto'];
+      product.photo = data['productPhoto'];
       product.price = data['productPrice'].toDouble();
       product.discount = data['productDiscount'].toDouble();
-      product.detail = data['productDetail'] ?? "No Details are available for this product.";
+      product.detail =
+          data['productDetail'] ?? "No Details are available for this product.";
       product.quantity = data['productQuantity'];
 
       setState(() {
@@ -78,33 +83,33 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
   }
+
   _getAllCategories() async {
     var categories = await _categoryService.getCategories();
     var result = json.decode(categories.body);
     print(categories.body);
-    result['data'].forEach((data){
+    result['data'].forEach((data) {
       var model = Category();
       model.id = data["id"];
       model.name = data["categoryName"];
       model.icon = data["categoryIcon"];
       setState(() {
-      _categoryList.add(model);
-    });
+        _categoryList.add(model);
+      });
     });
     //print(result);
-    
   }
 
   _getAllHotProducts() async {
     var hotProducts = await _productService.getHotProducts();
     print(hotProducts.body);
     var result = json.decode(hotProducts.body);
-    result['data'].forEach((data){
+    result['data'].forEach((data) {
       var model = Product();
       model.id = data["id"];
       model.name = data["productName"];
       model.photo = data["productImage"];
-      model.price = data["productPrice"].toDouble(); 
+      model.price = data["productPrice"].toDouble();
       model.discount = data["productDiscount"].toDouble();
       model.detail = data["productDetail"];
 
@@ -113,16 +118,17 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
   }
+
   _getAllNewArrivalProducts() async {
     var newArrivalProducts = await _productService.getNewArrivalProducts();
     print(newArrivalProducts.body);
     var result = json.decode(newArrivalProducts.body);
-    result['data'].forEach((data){
+    result['data'].forEach((data) {
       var model = Product();
       model.id = data["id"];
       model.name = data["productName"];
       model.photo = data["productImage"];
-      model.price = data["productPrice"].toDouble(); 
+      model.price = data["productPrice"].toDouble();
       model.discount = data["productDiscount"].toDouble();
       model.detail = data["productDetail"];
 
@@ -132,77 +138,112 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  _registerOnFirebase() {
+    _firebaseMessaging.subscribeToTopic('all');
+    _firebaseMessaging.getToken().then((token) => print(token));
+  }
+
+  void getMessage() {
+    _firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+          print('received message');
+
+        }, onResume: (Map<String, dynamic> message) async {
+      print('on resume $message');
+
+    }, onLaunch: (Map<String, dynamic> message) async {
+      print('on launch $message');
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: SideDrawerNavigation(),
       appBar: AppBar(
-        title:Text("Ecom-App"),
-        elevation: 0.0,
-        backgroundColor: Colors.blueAccent,
-        actions: <Widget>[
-          InkWell(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen(_cartItems)));
-            },
-                      child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Container(
-                height:150,
-                width:30,
-                child: Stack(
-                  children: <Widget>[
-                    IconButton(
-                      iconSize: 30,
-                      icon: Icon(Icons.shopping_cart), 
-                      onPressed: (){}),
-                    Positioned(
-                      
-                      child: Stack(
-                        children: <Widget>[
-                          Icon(Icons.brightness_1,size:25,color:Colors.black),
-                          Positioned(
-                            top: 4,
-                            right: 8,
-                            child: Text(_cartItems.length.toString()),
-                            )
-                    ],
-                    ),
-                    )
-                ],)
-                ),
-            ),
-          )
-        ]
-      ),
+          title: Text("Ecom-App"),
+          elevation: 0.0,
+          backgroundColor: Colors.blueAccent,
+          actions: <Widget>[
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CartScreen(_cartItems)));
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                    height: 150,
+                    width: 30,
+                    child: Stack(
+                      children: <Widget>[
+                        IconButton(
+                            iconSize: 30,
+                            icon: Icon(Icons.shopping_cart),
+                            onPressed: () {}),
+                        Positioned(
+                          child: Stack(
+                            children: <Widget>[
+                              Icon(Icons.brightness_1,
+                                  size: 25, color: Colors.black),
+                              Positioned(
+                                top: 4,
+                                right: 8,
+                                child: Text(_cartItems.length.toString()),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    )),
+              ),
+            )
+          ]),
       body: Container(
-        child:ListView(
+        child: ListView(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Card(elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-                              child: ClipRRect(
+              child: Card(
+                elevation: 5.0,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
-                  child: carouselSlider(items)),
+                ),
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15.0),
+                    child: carouselSlider(items)),
               ),
             ),
             // Padding(
             //   padding: EdgeInsets.all(10.0),
             //   child: Text("Product Categories", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
             //   ),
-              HomeProductCategories(categoryList: _categoryList,),
-              Padding(
+            HomeProductCategories(
+              categoryList: _categoryList,
+            ),
+            Padding(
               padding: EdgeInsets.all(10.0),
-              child: Text("Hot Products", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+              child: Text(
+                "Hot Products",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              HomeHotProducts(productList: _productList,),
-              Padding(
+            ),
+            HomeHotProducts(
+              productList: _productList,
+            ),
+            Padding(
               padding: EdgeInsets.all(10.0),
-              child: Text("New Arrival Products", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+              child: Text(
+                "New Arrival Products",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              HomeNewArrivalProducts(productList: _newArrivalproductList,),
+            ),
+            HomeNewArrivalProducts(
+              productList: _newArrivalproductList,
+            ),
           ],
         ),
       ),

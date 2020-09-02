@@ -7,7 +7,7 @@ class Shipping {
   toJson(){
     return {
       'id' : id.toString(),
-      'name' : name.toString(),
+      'name' : name,
       'email' : email,
       'address' : address
     };

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:ecomapp/models/product.dart';
@@ -18,7 +17,6 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-    
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final name = TextEditingController();
 
@@ -30,17 +28,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     var _userService = UserService();
     var registeredUser = await _userService.createUser(user);
     var result = json.decode(registeredUser.body);
-    if(result['result'] == true){
+    if (result['result'] == true) {
       SharedPreferences _prefs = await SharedPreferences.getInstance();
       _prefs.setInt('userId', result['user']['id']);
       _prefs.setString('userName', result['user']['name']);
       _prefs.setString('userEmail', result['user']['email']);
-      Navigator.push(context, MaterialPageRoute(builder: (context) =>CheckoutScreen(cartItems: this.widget.cartItems,)));
-    } else{
-      _showSnackMessage(Text('Failed to register the user!', style: TextStyle(color: Colors.red),));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CheckoutScreen(
+                    cartItems: this.widget.cartItems,
+                  )));
+    } else {
+      _showSnackMessage(Text(
+        'Failed to register the user!',
+        style: TextStyle(color: Colors.red),
+      ));
     }
   }
-   _showSnackMessage(message){
+
+  _showSnackMessage(message) {
     var snackBar = SnackBar(
       content: message,
     );
@@ -88,8 +95,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 controller: email,
                 decoration: InputDecoration(
                     hintText: 'Enter your email address',
-                    labelText: 'Enter your email address'
-                    ),
+                    labelText: 'Enter your email address'),
               ),
             ),
             Padding(
@@ -109,8 +115,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   height: 45.0,
                   child: FlatButton(
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(7.0),
-                        ),
+                      borderRadius: BorderRadius.circular(7.0),
+                    ),
                     color: Colors.redAccent,
                     onPressed: () {
                       var user = User();

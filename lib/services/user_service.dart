@@ -4,7 +4,7 @@ import 'package:ecomapp/repository/repository.dart';
 class UserService {
   Repository _repository;
 
-  UserService(){
+  UserService() {
     _repository = Repository();
   }
 

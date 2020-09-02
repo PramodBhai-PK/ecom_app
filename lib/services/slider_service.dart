@@ -1,8 +1,8 @@
 import 'package:ecomapp/repository/repository.dart';
 
-class SliderService{
+class SliderService {
   Repository _repository;
-  SliderService(){
+  SliderService() {
     _repository = Repository();
   }
   getSliders() async {

@@ -6,9 +6,8 @@ class ShippingService {
 
   ShippingService(){
     _repository = Repository();
-  
   }
   addShipping(Shipping shipping) async {
-    return await _repository.httpPost('shipping', shipping.toJson());
+    return await _repository.httpPost('shippings', shipping.toJson());
   }
 }

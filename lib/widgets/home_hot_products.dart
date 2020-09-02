@@ -14,7 +14,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Container(
-      
+
 //       height: 205,
 //       child: ListView.builder(
 //         scrollDirection: Axis.horizontal,
@@ -47,11 +47,10 @@ class _HomeHotProductsState extends State<HomeHotProducts> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: this.widget.productList.length,
-        itemBuilder: (context, index){
-          return 
-          HomeHotProduct(this.widget.productList[index]);
+        itemBuilder: (context, index) {
+          return HomeHotProduct(this.widget.productList[index]);
         },
       ),
     );
   }
-  }
+}

@@ -17,8 +17,14 @@ class Product{
     map['productQuantity'] = quantity;
     return map;
   }
-
-  fromMap(){
-    
+  toJson(){
+    return {
+      'productId' : id.toString(),
+      'productName' : name.toString(),
+      'productPhoto' : photo,
+      'productPrice' : price.toString(),
+      'productDiscount' : discount.toString(),
+      'productQuantity' : quantity.toString(),
+    };
   }
 }

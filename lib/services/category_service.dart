@@ -1,8 +1,8 @@
 import 'package:ecomapp/repository/repository.dart';
 
-class CategoryService{
+class CategoryService {
   Repository _repository;
-  CategoryService(){
+  CategoryService() {
     _repository = Repository();
   }
   getCategories() async {

@@ -26,8 +26,8 @@ class Repository{
       return await http.get(_baseUrl + "/" + api);
     }
 
-  httpGetById(String api, categoryId) async{
-    return await http.get(_baseUrl + "/" + api + "/" + categoryId.toString(),);
+  httpGetById(String api, id) async {
+    return await http.get(_baseUrl + "/" + api + "/" + id.toString(),);
   }
   httpPost(String api, data) async {
     print(data);
@@ -52,6 +52,14 @@ class Repository{
   getLocalByCondition(table, columnName, conditionalValue) async {
     var conn = await database;
     return await conn.rawQuery('SELECT * FROM $table WHERE $columnName=?', ['$conditionalValue']);
+  }
+  deleteLocalById(table, id) async {
+    var conn = await database;
+    return await conn.rawDelete("DELETE FROM $table WHERE id = $id");
+  }
+  deleteLocal(table) async {
+    var conn = await database;
+    return await conn.rawDelete("DELETE FROM $table");
   }
 
 }
